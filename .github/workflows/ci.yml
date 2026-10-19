@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+
+jobs:
+  test:
+    name: Simulation & Cocotb Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Icarus Verilog
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y iverilog
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install cocotb cocotb-tools pytest
+
+      - name: Run Verilog testbench
+        run: |
+          iverilog -g2001 -o /tmp/tb_test \
+            -I rtl -I rtl/hdmi -I rtl/framebuffer -I rtl/jpeg -I rtl/mjpeg -I rtl/qspi -I rtl/uart \
+            sim/tb_mjpeg_subsystems.v \
+            rtl/hdmi/hdmi_timing_gen.v \
+            rtl/framebuffer/scaler_5x.v \
+            rtl/jpeg/jpeg_huffman_lut.v \
+            rtl/jpeg/jpeg_ycbcr_to_rgb.v \
+            rtl/uart/uart_tx.v \
+            rtl/uart/uart_rx.v
+          vvp /tmp/tb_test
+
+      - name: Run Cocotb test suite
+        run: |
+          python3 -m pytest -v sim/cocotb/test_runner.py

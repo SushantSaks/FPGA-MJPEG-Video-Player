@@ -1,0 +1,42 @@
+# Vivado build and temporary outputs
+build_output/
+.Xil/
+*.jou
+*.log
+*.dcp
+*.bit
+*.bin
+*.rpt
+
+# Simulation artifacts
+xsim.dir/
+*.wdb
+*.vcd
+*.pb
+*.str
+top_sim*
+.sim/
+
+# Python cache and environments
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+
+# Temporary and editor files
+*~
+*.swp
+*.swo
+.DS_Store
+clockInfo.txt
+tight_setup_hold_pins.txt
+
+# Cocotb and pytest artifacts
+sim_build*/
+sim/cocotb/sim_build*/
+.pytest_cache/
+results.xml
+*.result.xml
+*.fst
