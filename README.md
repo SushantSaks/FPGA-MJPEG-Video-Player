@@ -349,6 +349,63 @@ The Verilog-2001 port underwent multi-tier verification:
 
 ---
 
+## 16. Technical References & Standards
+
+### Image Compression & Decompression
+1. **ITU-T Recommendation T.81 / ISO/IEC 10918-1:**  
+   *Information Technology – Digital Compression and Coding of Continuous-Tone Still Images – Requirements and Guidelines (JPEG Baseline Standard)*.  
+   Marker syntax (SOI `0xFFD8`, SOF0 `0xFFC0`, DHT `0xFFC4`, SOS `0xFFDA`, EOI `0xFFD9`), standard Annex K Huffman tables (Tables K.3–K.6), and baseline 8-bit DCT decoding process.  
+   [ITU-T T.81 Official Specification (PDF)](https://www.w3.org/Graphics/JPEG/itu-t81.pdf)
+
+2. **Chen, W.-H., Smith, C. H., & Fralick, S. C. (1977):**  
+   *A Fast Computational Algorithm for the Discrete Cosine Transform*. IEEE Transactions on Communications, 25(9), 1004–1009.  
+   Matrix factorization reducing 8-point 1D IDCT multiplication operations from $O(N^2)$ to $O(N \log N)$ implemented in [`rtl/jpeg/jpeg_idct_2d.v`](file:///home/sushant/mjpeg_fpga_player_verilog/rtl/jpeg/jpeg_idct_2d.v).  
+   [IEEE Xplore DOI: 10.1109/TCOM.1977.1093941](https://doi.org/10.1109/TCOM.1977.1093941)
+
+3. **Arai, Y., Agui, T., & Nakajima, M. (1988):**  
+   *A Fast DCT-SQ Scheme for Images*. Transactions of the IEICE, E71(11), 1095–1097.  
+   Scaled 1D-DCT factorization algorithm absorbing cosine normalization factors into quantization tables to minimize DSP multiplier usage in FPGA hardware.
+
+### Display Timing, Serialization & Color Space
+4. **Consumer Technology Association (CTA / ANSI/CTA-861-G, formerly CEA-861):**  
+   *A DTV Profile for Uncompressed High Speed Digital Interfaces*.  
+   Video Format 4 (1280x720p @ 60 Hz) standard timing: 74.25 MHz pixel clock, $H_{active}=1280$, $H_{fp}=110$, $H_{sync}=40$, $H_{bp}=220$ (1650 total clocks), $V_{active}=720$, $V_{fp}=5$, $V_{sync}=5$, $V_{bp}=20$ (750 total lines) implemented in [`rtl/hdmi/hdmi_timing_gen.v`](file:///home/sushant/mjpeg_fpga_player_verilog/rtl/hdmi/hdmi_timing_gen.v).
+
+5. **Digital Display Working Group (DDWG, 1999):**  
+   *Digital Visual Interface (DVI) Revision 1.0 Specification*.  
+   DVI/HDMI TMDS 8b/10b transition-minimized, DC-balanced encoding scheme and control token mapping (`00`, `01`, `10`, `11`) implemented in [`rtl/hdmi/tmds_encoder.v`](file:///home/sushant/mjpeg_fpga_player_verilog/rtl/hdmi/tmds_encoder.v).
+
+6. **ITU-R Recommendation BT.601-7:**  
+   *Studio Encoding Parameters of Digital Television for Standard 4:3 and Wide-Screen 16:9 Aspect Ratios*.  
+   YCbCr (4:2:0 full-range) to RGB matrix multiplication transformation coefficients implemented in [`rtl/jpeg/jpeg_ycbcr_to_rgb.v`](file:///home/sushant/mjpeg_fpga_player_verilog/rtl/jpeg/jpeg_ycbcr_to_rgb.v):  
+   $$R = Y + 1.40200 \times (Cr - 128)$$  
+   $$G = Y - 0.34414 \times (Cb - 128) - 0.71414 \times (Cr - 128)$$  
+   $$B = Y + 1.77200 \times (Cb - 128)$$
+
+### Silicon Architecture & Flash Memory
+7. **AMD / Xilinx 7 Series FPGAs SelectIO Resources User Guide (UG471):**  
+   *UG471: Spartan-7, Artix-7, Kintex-7, and Virtex-7 FPGAs*.  
+   Architecture of `ODDR` (Output Double Data Rate) and `OBUFDS` (Differential Signaling Output Buffer) primitives used for 10:1 DDR HDMI bit serialization at 371.25 MHz in [`rtl/hdmi/tmds_serializer.v`](file:///home/sushant/mjpeg_fpga_player_verilog/rtl/hdmi/tmds_serializer.v).
+
+8. **AMD / Xilinx 7 Series FPGAs Configuration User Guide (UG470):**  
+   *UG470: Configuration Architecture and Primitives*.  
+   Dedicated `STARTUPE2` primitive interfacing to access SPI configuration flash memory pins (`CCLK`, `CS_N`) after FPGA bitstream boot in [`rtl/qspi/qspi_controller.v`](file:///home/sushant/mjpeg_fpga_player_verilog/rtl/qspi/qspi_controller.v).
+
+9. **Winbond Electronics Corporation:**  
+   *W25Q128JV: 3V 128M-Bit Serial Flash Memory with Dual/Quad SPI & QPI Datasheet*.  
+   SPI Mode 0 protocol sequences: Sector Erase (`0x20`, 4 KB), Page Program (`0x02`, 256 bytes), Fast Read (`0x0B`), and Status Register polling (`0x05`).
+
+### HDL Standards & Verification
+10. **IEEE Std 1364-2001:**  
+    *IEEE Standard for Verilog Hardware Description Language*.  
+    Defines the synthesizable Verilog-2001 language subset implemented across all 27 hardware modules in this repository.
+
+11. **Cocotb Documentation & Specifications:**  
+    *Coroutine-based co-simulation testbench environment for verifying VHDL/Verilog RTL using Python*.  
+    IEEE 1364 VPI co-simulation architecture, async coroutine scheduling, and Python-to-HDL verification interfaces. [Cocotb Documentation](https://docs.cocotb.org/)
+
+---
+
 ## License
 
 This project is released for academic, evaluation, and engineering portfolio demonstration purposes. All rights to the original architectural implementation belong to the respective authors.
