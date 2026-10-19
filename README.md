@@ -1,4 +1,4 @@
-# FPGA Motion-JPEG Video Player (Verilog-2001)
+# FPGA Motion-JPEG Video Player
 
 [![CI](https://github.com/SushantSaks/FPGA-MJPEG-Video-Player/actions/workflows/ci.yml/badge.svg)](https://github.com/SushantSaks/FPGA-MJPEG-Video-Player/actions/workflows/ci.yml)
 
